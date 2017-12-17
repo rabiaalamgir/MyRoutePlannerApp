@@ -3,7 +3,7 @@ Given as input a set of locations (in plain English), this application can make 
 
 ## Getting Started
 Clone this repo on your local machine.  
-Run MyRoutePlannerApp.py (It will ask for inputs and recommend format on runtime.  
+Run MyRoutePlannerApp.py (It will ask for inputs and recommend format on runtime)  
 
 ### Prerequisites
 1. Python 3.5  

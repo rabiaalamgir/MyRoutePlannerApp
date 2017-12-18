@@ -2,26 +2,33 @@ from geopy.geocoders import Nominatim
 from itertools import permutations
 from uber_rides.client import UberRidesClient
 from uber_rides.session import Session
-import sys
 
 
 def calculate_estimates(start, end):
-    response = client.get_price_estimates(
-        start_latitude=latitudes[start],
-        start_longitude=longitudes[start],
-        end_latitude=latitudes[end],
-        end_longitude=longitudes[end],
-        seat_count=1
-    )
-    return response.json.get('prices')
+    if (start, end) in saved_estimates.keys():
+        return saved_estimates[(start, end)]
+    else:
+        response = client.get_price_estimates(
+            start_latitude=latitudes[start],
+            start_longitude=longitudes[start],
+            end_latitude=latitudes[end],
+            end_longitude=longitudes[end],
+            seat_count=1
+        )
+        return response.json.get('prices')
 
+latitudes, locations, longitudes, new_locations = [], [], [], []
+saved_estimates = {}
 print("Enter the names for the set of locations you wish to visit, "
       "with the start location first in order and the final destination at "
-      "the end.\nPlease press Enter after entering each location and Ctrl+D "
+      "the end.\nPlease press Enter after entering each location and 'q' "
       "after entering the last location.\n")
-locations = sys.stdin.read().split("\n")
+loc = str(input())
+while not loc == 'q':
+    locations.append(loc)
+    loc = str(input())
+
 print("Please wait while your locations get geocoded...\n")
-latitudes, longitudes, new_locations = [], [], []
 
 for location in locations:
     try:
@@ -52,6 +59,7 @@ if len(locations)>3:
         price = 0
         for i in range(len(order)-1):
             estimates = calculate_estimates(order[i], order[i+1])
+            saved_estimates[(order[i], order[i+1])] = estimates
             high_estimates = list(map(lambda x: x['high_estimate'], estimates))
             price += min(high_estimates)
             if i == 0:
